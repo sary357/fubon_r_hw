@@ -52,28 +52,51 @@ district<-substr(addr, 4, 6)
 df<-data.frame("district"=district, "lat"=district_lat, "lon"=district_lon)
 
 # let's plot
+# 中山區
 district_name='中山區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 中正區
 district_name='中正區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 大同區
 district_name='大同區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 萬華區
 district_name='萬華區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 松山區
 district_name='松山區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 大安區
 district_name='大安區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 信義區
 district_name='信義區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
-district_name='中山區'
+
+# 文山區
+district_name='文山區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 南港區
 district_name='南港區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 內湖區
 district_name='內湖區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 士林區
 district_name='士林區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
+
+# 北投區
 district_name='北投區'
 plot_stolen_in_each_district_in_taipei(maptype,df,taipei,district_name)
 
