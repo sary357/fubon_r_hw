@@ -90,11 +90,13 @@ renderTable(
 )
 
 ```
+
 - 從上方圖表中, 可以看出中山區的 2015 年 1 月到 2017 年 8 月住宅竊盜案件數較其他行政區高出許多
 - 萬華區的件數並不是特別高, 但集中於萬華區的某特定區域 (萬華龍山寺附近)
 
 ## 分區熱點分析
 - 請選擇不同行政區查看個行政區的熱點分析
+
 ```{r eruptions}
 inputPanel(
   selectInput("districtChosen", label = "District of Taipei:",
