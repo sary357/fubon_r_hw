@@ -32,7 +32,7 @@ plot_stolen_in_each_district_in_taipei=function(map_type, data_set, boarder_poin
 # load data
 maptype<-"roadmap"
 file_name=data_file_name
-stolen_point <- read.csv(file_name)
+stolen_point <- read_csv(file_name)
 tw.map <- maptools::readShapeSpatial(shp_file_name)
 taipei<-tw.map[tw.map@data$COUNTYNAME=="臺北市",] 
 
@@ -53,7 +53,7 @@ district_lat<-stolen_point$lat
 district_lon<-stolen_point$lon
 district<-substr(addr, 4, 6)
 df<-data.frame("district"=district, "lat"=district_lat, "lon"=district_lon)
-df_people <-  read_csv("~/Downloads/R_Report/opendata10608M030.csv")
+df_people <-  read_csv(people_distribution_file_name)
 df_people %>% View
 
 # let's plot

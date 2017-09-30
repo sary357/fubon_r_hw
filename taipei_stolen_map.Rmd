@@ -17,7 +17,7 @@ library(readr)
 
 shp_file_name="/Users/sary357/Downloads/R_Report/TOWN_MOI_1060831.shp"
 data_file_name="/Users/sary357/Downloads/R_Report/stolen_in_taipei_10401_10608.csv"
-
+people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
 
 plot_stolen_in_each_district_in_taipei=function(map_type, data_set, boarder_points, district_name){
  
@@ -42,7 +42,7 @@ plot_stolen_in_each_district_in_taipei=function(map_type, data_set, boarder_poin
 # load data
 maptype<-"roadmap"
 file_name=data_file_name
-stolen_point <- read.csv(file_name)
+stolen_point <- read_csv(file_name)
 tw.map <- maptools::readShapeSpatial(shp_file_name)
 taipei<-tw.map[tw.map@data$COUNTYNAME=="臺北市",] 
 
@@ -96,10 +96,10 @@ renderTable(
 ```
 
 ## 分區統計(2)
-- ㄧ每一個行政區每一千戶的平均竊盜案數目
+- 每一個行政區每一千戶的平均竊盜案數目
 
 ```{r simple_graph_show_percentage, echo=FALSE, warning=FALSE, comment=FALSE, message=F}
-people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
+
 df_people <-  read_csv(people_distribution_file_name)
 df_1<-df_people %>% filter(.,grepl('臺北市', site_id)) %>% filter(household_no >0)%>%select(site_id,household_no) %>% group_by(household_no) 
 #df_1 %>% View
@@ -121,6 +121,8 @@ df_4 %>% ggplot( mapping=aes(x=district,y=df_3.percentage,fill=-df_3.percentage)
 ## 分區統計(小結)
 - 從上方圖表中, 可以看出中山區的 2015 年 1 月到 2017 年 8 月住宅竊盜案件數較其他行政區高出許多
 - 萬華區的件數並不是特別高, 但集中於萬華區的某特定區域 (萬華龍山寺附近)
+- 中正區每一千戶的竊盜數量和萬華區相當
+- 文山區相對來說其他行政區中竊盜案數量是最低的
 
 ## 分區熱點分析
 - 請選擇不同行政區查看個行政區的熱點分析
