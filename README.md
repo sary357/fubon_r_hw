@@ -13,12 +13,8 @@
 
 ```
 shp_file_name="/Users/sary357/Downloads/R_Report/TOWN_MOI_1060831.shp"
-data_file_name="/Users/sary357/Downloads/R_Report/stolen_in_taipei_10401_10608.csv"
-people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
 ```
-- data_file_name: 請改成 stolen_in_taipei_10401_10608.csv 本機的絕對路徑
 - shp_file_name: 請改成 TOWN_MOI_1060831.shp 本機的絕對路徑
-- people_distribution_file_name: 請改成 opendata10608M030.csv 本機的絕對路徑
 - 在 RStudio 執行 "Run Presentation" 即可
 
 ### stolen_pricing.R
@@ -26,9 +22,5 @@ people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M0
 
 ```
 shp_file_name="/Users/sary357/Downloads/R_Report/TOWN_MOI_1060831.shp"
-data_file_name="/Users/sary357/Downloads/R_Report/stolen_in_taipei_10401_10608.csv"
-people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
 ```
-- data_file_name: 請改成 stolen_in_taipei_10401_10608.csv 本機的絕對路徑
 - shp_file_name: 請改成 TOWN_MOI_1060831.shp 本機的絕對路徑
-- people_distribution_file_name: 請改成 opendata10608M030.csv 本機的絕對路徑
