@@ -10,9 +10,9 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 
-shp_file_name="/Users/sary357/Downloads/R_Report/TOWN_MOI_1060831.shp"
-data_file_name="/Users/sary357/Downloads/R_Report/stolen_in_taipei_10401_10608.csv"
-people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
+shp_file_name="./TOWN_MOI_1060831.shp"
+data_file_name="https://github.com/sary357/fubon_r_hw/raw/master/stolen_in_taipei_10401_10608.csv"
+people_distribution_file_name="https://github.com/sary357/fubon_r_hw/raw/master/opendata10608M030.csv"
 
 plot_stolen_in_each_district_in_taipei=function(map_type, data_set, boarder_points, district_name){
   #district_full_name
