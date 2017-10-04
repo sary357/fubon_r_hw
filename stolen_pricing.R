@@ -121,7 +121,7 @@ df_3<-merge(df_2, df_1, by=c("district"))
 df_3 %>% View
 df_3.percentage <- df_3$m/df_3$household_no*1000 # 得到每一區竊盜數目/千戶數
 df_4<-mutate(df_3,df_3.percentage)
-df_4 %>% ggplot( mapping=aes(x=district,y=df_3.percentage,fill=-df_3.percentage)) + geom_bar(stat="identity") +xlab("台北市行政區")+ylab("每一千戶發生竊盜案的數目")+theme(text = element_text(family = 'SimSun')) +guides(fill=FALSE)
+df_4 %>% ggplot( mapping=aes(x=district,y=df_3.percentage,fill=-df_3.percentage)) + geom_bar(stat="identity") +xlab("台北市行政區")+ylab("每一千戶發生竊盜案的數目")+theme(text = element_text(family = '黑體-繁 中黑')) +guides(fill=FALSE)
 
 
 

@@ -26,19 +26,14 @@ data_file_name="./stolen_in_taipei_10401_10608.csv"
 people_distribution_file_name="./opendata10608M030.csv"
 
 plot_stolen_in_each_district_in_taipei=function(map_type, data_set, boarder_points, district_name){
- 
+  #data_set %>% print(.)
   plotDf<-data_set %>% select(.,district, lat, lon) %>% filter(.,district==district_name) 
   plot_area<- boarder_points[boarder_points@data$TOWNNAME==district_name,]
   map<-get_googlemap(center = c(lon=median(plotDf$lon),lat=median(plotDf$lat)),
-                 
                  zoom = 14,
                  language = "zh-TW", 
                  maptype = map_type,  force = FALSE, archiving = TRUE)  
-  #map<-get_map(location = c(lon=median(plotDf$lon),lat=median(plotDf$lat)),
-  #               source = "google", 
-  #               zoom = 14,
-  #               language = "zh-TW", 
-  #               maptype = map_type,  force = FALSE)  
+  
   map %>% ggmap() +geom_polygon(aes(x = long, y = lat), 
                            data = plot_area,size=0.001, color="black",alpha=0.2)+stat_density2d(data = plotDf, aes(x = lon, y=lat,fill = ..level.., alpha = ..level..),size = 0.01, bins = 16, geom = "polygon") +scale_fill_gradient(low = "green", high = "red",guide = FALSE)+scale_alpha(range = c(0, 0.5), guide = FALSE)
   
@@ -57,8 +52,9 @@ addr<-stolen_point$定位地點
 district_lat<-stolen_point$lat
 district_lon<-stolen_point$lon
 district<-substr(addr, 4, 6)
-df<-data.frame("district"=district, "lat"=district_lat, "lon"=district_lon)
+df_district_map<-data.frame("district"=district, "lat"=district_lat, "lon"=district_lon)
 
+df<- df_district_map
 simpleDistrict<-df %>% group_by(district) %>% summarise(m=n()) %>% arrange(.,-m)
 
 df_people <-  read_csv(people_distribution_file_name)
@@ -181,8 +177,10 @@ inputPanel(
                          data = taipei,size=0.001, color="black",alpha=0.1)+stat_density2d(data = stolen_point, aes(x = lon, y=lat,fill = ..level.., alpha = ..level..),size = 0.01, bins = 16, geom = "polygon") +scale_fill_gradient(low = "green", high = "red",guide = FALSE)+scale_alpha(range = c(0, 0.5), guide = FALSE)
 
   }
-  else
-    plot_stolen_in_each_district_in_taipei(maptype,df,taipei,input$districtChosen)
+  else{
+   # print(top_n(,6))
+    plot_stolen_in_each_district_in_taipei(maptype,df_district_map,taipei,input$districtChosen)
+  }
 })
 
 ```
@@ -193,18 +191,6 @@ thiefarea = Taipei_thief_case$Area
 thieftime = Taipei_thief_case$Time
 
 df<-data.frame("thiefarea"=thiefarea, "thieftime"=thieftime)
-df_1<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市中山區')
-df_2<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市中正區') 
-df_3<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市大同區') 
-df_4<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市萬華區') 
-df_5<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市松山區') 
-df_6<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市大安區') 
-df_7<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市信義區') 
-df_8<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市文山區') 
-df_9<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市南港區') 
-df_10<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市內湖區') 
-df_11<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市士林區')
-df_12<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市北投區')
 
 count_group <- data.frame(user=factor(rep(1:50, 2)), 
                           count=sample(100, 100, replace=T), 
