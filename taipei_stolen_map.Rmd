@@ -15,13 +15,15 @@ library(dplyr)
 library(ggplot2)
 library(readr)
 
-#shp_file_name="/Users/sary357/Downloads/R_Report/TOWN_MOI_1060831.shp"
-#data_file_name="/Users/sary357/Downloads/R_Report/stolen_in_taipei_10401_10608.csv"
-#people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
+# local file path on desktop
+shp_file_name="/Users/sary357/Downloads/R_Report/TOWN_MOI_1060831.shp"
+data_file_name="/Users/sary357/Downloads/R_Report/stolen_in_taipei_10401_10608.csv"
+people_distribution_file_name="/Users/sary357/Downloads/R_Report/opendata10608M030.csv"
 
+# URL
 shp_file_name="./TOWN_MOI_1060831.shp"
-data_file_name="https://github.com/sary357/fubon_r_hw/raw/master/stolen_in_taipei_10401_10608.csv"
-people_distribution_file_name="https://github.com/sary357/fubon_r_hw/raw/master/opendata10608M030.csv"
+data_file_name="./stolen_in_taipei_10401_10608.csv"
+people_distribution_file_name="./opendata10608M030.csv"
 
 plot_stolen_in_each_district_in_taipei=function(map_type, data_set, boarder_points, district_name){
  
@@ -56,12 +58,37 @@ district_lat<-stolen_point$lat
 district_lon<-stolen_point$lon
 district<-substr(addr, 4, 6)
 df<-data.frame("district"=district, "lat"=district_lat, "lon"=district_lon)
+
+simpleDistrict<-df %>% group_by(district) %>% summarise(m=n()) %>% arrange(.,-m)
+
+df_people <-  read_csv(people_distribution_file_name)
+df_1<-df_people %>% filter(.,grepl('臺北市', site_id)) %>% filter(household_no >0)%>%select(site_id,household_no) %>% group_by(household_no) 
+#df_1 %>% View
+df_1$site_id<-as.factor(df_1$site_id)
+df_1$household_no<-as.numeric(df_1$household_no)
+df_1<-aggregate(df_1$household_no, by=list(site_id=df_1$site_id), FUN=sum)
+df_1$site_id<-substr(df_1$site_id, 4, 6)
+colnames(df_1) <- c("district", "household_no")
+df_3<-merge(simpleDistrict, df_1, by=c("district"))
+
+df_3.percentage <- df_3$m/df_3$household_no*1000 # 得到每一區竊盜數目/千戶數
+df_4<-mutate(df_3,df_3.percentage)
+
+
+Taipei_thief_case <- read_csv("./Thief.csv")
 ```
 
-## Dataset - 竊盜地圖
+## Dataset - 台北市竊盜地圖
 ```{r stolen_data , echo=F}
 renderTable(
-  {head(stolen_point %>% select(發生日期, 發生地點,lat,lon), 10)}
+  {head(stolen_point %>% select(發生日期, 發生時段,發生地點,lat,lon), 10)}
+)
+```
+
+## Dataset - 全台北鄰里區戶口統計資料
+```{r people_dis_data, echo=FALSE}
+knitr::kable(
+  cbind(df_1[1:6,],df_1[-(1:6),])
 )
 ```
 
@@ -87,40 +114,47 @@ ggmap(map) +geom_point(aes(x = long, y = lat),
 - 台北市全區中, 我們可以知道從 2015 年 1 月到 2017 年 8 月在中山區及萬華區是台北市 12 行政區中住宅竊盜高度相對集中的行政區
 
 ## 分區統計(1)
-- 竊盜數量統計前 6 名行政區
+- 以竊盜次數來看，發生次數最多的為中山區(約佔北市的14%)、最少的為南港區(約佔北市的4%)
+```{r simple_statistics_in_each_district, echo=FALSE, warning=FALSE, comment=FALSE, message=F}
 
-```{r simple_statistics_in_each_district, echo=FALSE}
-simpleDistrict<-df %>% group_by(district) %>% summarise(m=n()) %>% arrange(.,-m)
-renderTable(
-  {colnames(simpleDistrict) <- c("行政區", "住宅竊盜數量")
-    simpleDistrict %>% top_n(6)
-    }
-)
+
+    colnames(simpleDistrict) <- c("行政區", "住宅竊盜數量")
+    #simpleDistrict %>% top_n(6)
+    knitr::kable(
+      cbind(simpleDistrict[1:6,],simpleDistrict[-(1:6),]))
 
 ```
 
 ## 分區統計(2)
-- 每一個行政區每一千戶的平均竊盜案數目
+- 以竊盜率(每千戶平均竊盜數量)來看，最高為中山區、最低則為文山區
+→天龍國蛋黃區的大安、信義區並非最安全
 
-```{r simple_graph_show_percentage, echo=FALSE, warning=FALSE, comment=FALSE, message=F}
+```{r simple_graph_show_percentage_2, echo=FALSE, warning=FALSE, comment=FALSE, message=F}
 
-df_people <-  read_csv(people_distribution_file_name)
-df_1<-df_people %>% filter(.,grepl('臺北市', site_id)) %>% filter(household_no >0)%>%select(site_id,household_no) %>% group_by(household_no) 
-#df_1 %>% View
-df_1$site_id<-as.factor(df_1$site_id)
-df_1$household_no<-as.numeric(df_1$household_no)
-df_1<-aggregate(df_1$household_no, by=list(site_id=df_1$site_id), FUN=sum)
-df_1$site_id<-substr(df_1$site_id, 4, 6)
-colnames(df_1) <- c("district", "household_no")
-df_3<-merge(simpleDistrict, df_1, by=c("district"))
 
-df_3.percentage <- df_3$m/df_3$household_no*1000 # 得到每一區竊盜數目/千戶數
-df_4<-mutate(df_3,df_3.percentage)
-df_4 %>% ggplot( mapping=aes(x=district,y=df_3.percentage,fill=-df_3.percentage)) + geom_bar(stat="identity") +xlab("台北市行政區")+ylab("每一千戶發生竊盜案的數目")+theme(text = element_text(family = 'SimSun')) +guides(fill=FALSE)
+    df_5<-df_4 %>% select(district, df_3.percentage)
+     colnames(df_5) <- c("行政區", "每一千戶的平均竊盜案數目")
+     df_5<- df_5 %>% arrange(-每一千戶的平均竊盜案數目) 
+     knitr::kable(
+  cbind(df_5[1:6,],df_5[-(1:6),])
+)
+
 
 
 
 ```
+
+## 分區統計(3)
+- 以竊盜率(每千戶平均竊盜數量)來看，最高為中山區、最低則為文山區
+→天龍國蛋黃區的大安、信義區並非最安全
+
+```{r simple_graph_show_percentage, echo=FALSE, warning=FALSE, comment=FALSE, message=F}
+
+
+df_4 %>% ggplot( mapping=aes(x=reorder(district, -df_3.percentage),y=df_3.percentage,fill=-df_3.percentage)) + geom_bar(stat="identity") +xlab("台北市行政區")+ylab("每一千戶發生竊盜案的數目")+theme(text = element_text(family = 'SimSun')) +guides(fill=FALSE)
+
+```
+
 
 ## 分區統計(小結)
 - 從上方圖表中, 可以看出中山區的 2015 年 1 月到 2017 年 8 月住宅竊盜案件數較其他行政區高出許多
@@ -134,15 +168,66 @@ df_4 %>% ggplot( mapping=aes(x=district,y=df_3.percentage,fill=-df_3.percentage)
 ```{r eruptions}
 inputPanel(
   selectInput("districtChosen", label = "District of Taipei:",
-              choices = c('中山區', '萬華區','中正區','大同區','松山區',                          '大安區','信義區','文山區','南港區','內湖區','士林區','北投區'), selected = '中山區')
+              choices = c('台北市全區','中山區', '萬華區','中正區','大同區','松山區',                          '大安區','信義區','文山區','南港區','內湖區','士林區','北投區'), selected = '台北市全區')
   )
-renderPlot({
-  if(input$districtChosen=='')
-    plot_stolen_in_each_district_in_taipei(maptype,df,taipei,'中山區')
+ renderPlot({
+  if(input$districtChosen=='台北市全區'){
+    map <- get_googlemap(center = c(lon=median(stolen_point$lon),lat=median(stolen_point$lat)),
+               
+               zoom = 12,
+               language = "zh-TW", 
+               maptype = maptype)
+   ggmap(map) +geom_point(aes(x = long, y = lat), 
+                         data = taipei,size=0.001, color="black",alpha=0.1)+stat_density2d(data = stolen_point, aes(x = lon, y=lat,fill = ..level.., alpha = ..level..),size = 0.01, bins = 16, geom = "polygon") +scale_fill_gradient(low = "green", high = "red",guide = FALSE)+scale_alpha(range = c(0, 0.5), guide = FALSE)
+
+  }
   else
     plot_stolen_in_each_district_in_taipei(maptype,df,taipei,input$districtChosen)
 })
 
 ```
 
+## 分析12行政區竊盜發生時間點
+```{r sotlen_time_slot, echo=F}
+thiefarea = Taipei_thief_case$Area
+thieftime = Taipei_thief_case$Time
+
+df<-data.frame("thiefarea"=thiefarea, "thieftime"=thieftime)
+df_1<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市中山區')
+df_2<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市中正區') 
+df_3<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市大同區') 
+df_4<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市萬華區') 
+df_5<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市松山區') 
+df_6<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市大安區') 
+df_7<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市信義區') 
+df_8<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市文山區') 
+df_9<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市南港區') 
+df_10<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市內湖區') 
+df_11<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市士林區')
+df_12<-df %>% select(.,thiefarea,thieftime) %>% filter(.,thiefarea=='台北市北投區')
+
+count_group <- data.frame(user=factor(rep(1:50, 2)), 
+                          count=sample(100, 100, replace=T), 
+                          group=factor(rep(LETTERS[1:20], 5)))
+library(RColorBrewer)
+cols <- colorRampPalette(brewer.pal(9, "Set1"))
+ngroups <- length(unique(count_group$group))
+#----------------------------
+
+#df %>%  group_by(thiefarea,thieftime) %>% summarise(N=n())
+summarise(group_by(df,thiefarea,thieftime),cnt=n()) %>% 
+  ggplot(mapping = aes(x=thieftime,
+                       y=cnt,
+                       fill=thiefarea)) + 
+  geom_bar(stat="identity",position = "dodge") + 
+  xlab("竊盜時段") + ylab("竊盜次數") +
+  theme(text=element_text(family="黑體-繁 中黑", size=8)) +
+  #scale_fill_manual(values = c("gray50", "black", "orange", "yellow", "red","green","blue","pink","gray","brown","blue","blue"))
+  #scale_fill_brewer(palette = "Set3")
+  #scale_fill_manual(values = getPalette(colourCount))
+  scale_fill_manual(values = cols(ngroups))
+
+```
+
+- 每個行政區住宅竊盜時間點皆不同, 例如中山區竊盜時間高峰為22-24點, 松山區則為 10-12點, 萬華區則為 19-21 點, 對於警察巡邏時間或各行政區的鄰里巡守隊可以在這些時間點加大巡邏強度
 
